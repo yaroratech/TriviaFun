@@ -1,77 +1,34 @@
-import React, { useState } from "react";
-import { Input, Button } from "@material-ui/core";
+import React, { useState, useEffect } from "react";
 import Question from "./Question";
 
 export default function App() {
   const [questions, setQuestions] = useState([]);
-  const [numQuestions, setNumQuestions] = useState(10);
-  const [numAnswered, setNumAnswered] = useState(0);
 
-  console.log(numQuestions);
-
-  const handleChange = (e) => {
-    setNumQuestions(e.target.value);
-  };
-
-  const fetchQuestions = () => {
-    fetch("https://opentdb.com/api.php?amount=" + numQuestions)
-      .then((res) => res.json())
-      .then((res) => {
-        const questions = res.results.map((question) => {
-          let answers;
-
-          if (question.type === "boolean") {
-            answers = ["True", "False"];
-          } else {
-            answers = [...question.incorrect_answers];
-            const rand = Math.floor(Math.random() * 3);
-
-            answers.splice(rand, 0, question.correct_answer);
-          }
-
-          return { ...question, answers };
-        });
-
-        setQuestions(questions);
-      });
-
-    setNumAnswered(0);
-  };
-
-  if (questions.length === 0) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <Input type="number" value={numQuestions} onChange={handleChange} />
-        <Button onClick={fetchQuestions}>Go!</Button>
-      </div>
-    );
-  }
+  useEffect(() => {
+    fetch("https://opentdb.com/api.php?amount=10")
+    .then((res) => res.json())
+    .then((response) => {
+      console.log(response);
+      setQuestions(response.results);
+    })
+  }, []);
 
   return (
     <div
       style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
+        textAlign: "center",
+        border: "1px solid black",
+        maxWidth: "40w",
+        padding: "10px",
+        margin: "20px"
+
       }}
     >
-      {questions.map((q) => (
-        <Question
-          question={q}
-          setNumAnswered={setNumAnswered}
-          key={q.question}
-        />
+      <h1>Trivia Questions</h1>
+      {questions.map((question) => (
+        <Question question={question} />
       ))}
-
-      {numAnswered === parseInt(numQuestions) && (
-        <Button onClick={fetchQuestions}>Fetch more questions</Button>
-      )}
     </div>
   );
 }
+
